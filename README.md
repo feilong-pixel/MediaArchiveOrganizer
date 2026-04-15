@@ -1,23 +1,55 @@
-# ImageOrganizer
+# Media Archive Organizer
 
-按日期整理图片和视频文件的 Python 工具。
+An advanced media organization tool for users who need duplicate detection, stricter matching, and more controllable archiving workflows.
 
-程序会优先读取图片 EXIF 时间；如果没有 EXIF 时间，则使用文件修改时间。
-整理后的文件会按“年\月\日”的目录结构输出到目标目录中。
+The program reads image EXIF time first. If EXIF time is unavailable, it falls back to the file's modified time.
+Organized files are placed into the target directory using a `year\month\day` folder structure.
+
+It supports:
+
+- date-based folder organization
+- move or copy modes
+- perceptual duplicate detection for similar images
+- strict SHA-256 duplicate detection for exact file matches
+- multilingual CLI messages
+- per-run log output for traceability
+
+Language navigation:
+
+- English: [README.md](./README.md)
+- 中文: [README_zh.md](./README_zh.md)
+- 日本語: [README_ja.md](./README_ja.md)
 
 
-## 功能简介
+## Positioning
 
-- 递归扫描源目录中的子目录
-- 按日期自动整理图片和视频
-- 默认使用 `move` 模式移动文件
-- 支持 `copy` 模式保留原文件
-- 支持中文、英文、日文界面
-- 每次运行自动生成独立日志文件
-- 同名文件自动追加序号，避免直接覆盖
+This project is intended for advanced usage.
+
+Compared with a basic date-based organizer, it adds:
+
+- duplicate detection
+- strict exact-file matching
+- perceptual image matching with threshold control
+- persistent hash database
+- stronger destination safety rules
+- automated smoke tests
+
+If you only need simple date-based sorting with minimal complexity, a basic organizer may be a better fit.
 
 
-## 支持的文件类型
+## Features
+
+- Recursively scans subfolders in the source directory
+- Organizes images and videos by date automatically
+- Uses `move` mode by default
+- Supports `copy` mode to keep original files
+- Supports duplicate detection: off, perceptual image matching (`phash`), or strict file matching (`SHA-256`)
+- Supports Chinese, English, and Japanese UI
+- Generates a separate log file for each run
+- Automatically appends a numeric suffix for duplicate file names
+
+
+## Supported File Types
 
 - `.jpg`
 - `.jpeg`
@@ -26,134 +58,197 @@
 - `.mov`
 
 
-## 运行环境
+## Environment
 
-- Windows 10 或 Windows 11
-- Python 3.10 或更高版本
-- 依赖库：`Pillow`
+- Windows 10 or Windows 11
+- Python 3.10 or later
+- Dependency: `Pillow`
 
-安装依赖：
+Install dependency:
 
 ```powershell
-pip install Pillow
+.\venv\Scripts\python.exe -m pip install Pillow
 ```
 
-如需更完整的环境说明，请参考：
+Notes:
+
+- It is recommended to create the virtual environment first with `python -m venv venv` from the project root
+- The project virtual environment is typically located at `.\venv`
+- Prefer `.\venv\Scripts\python.exe` and `.\venv\Scripts\pip.exe` so you always know where dependencies are being installed
+- If you run plain `python` or `pip`, you may accidentally use the global Python installation or another virtual environment
+
+For detailed environment setup, see:
 
 - [ENVIRONMENT.md](./ENVIRONMENT.md)
 - [环境配置说明.md](./环境配置说明.md)
 - [環境設定ガイド.md](./環境設定ガイド.md)
 
 
-## 基本用法
+## Basic Usage
 
-在项目根目录打开终端后执行：
-
-```powershell
-python main.py --src 源目录 --dst 目标目录
-```
-
-示例：
+Enter the project root first, then run the command:
 
 ```powershell
-python main.py --src D:\InputPhotos --dst D:\SortedPhotos
+cd D:\ImageOrganizer
+```
+
+Recommended command:
+
+```powershell
+.\venv\Scripts\python.exe .\main.py --src SOURCE_DIR --dst TARGET_DIR
+```
+
+Example:
+
+```powershell
+.\venv\Scripts\python.exe .\main.py --src D:\InputPhotos --dst D:\SortedPhotos
 ```
 
 
-## 启动参数
+## Arguments
 
 ### `--src`
 
-源目录，必填。
+Source directory. Required.
 
 ### `--dst`
 
-目标目录，必填。
+Destination directory. Required.
 
 ### `--mode`
 
-整理模式，可选：
+Organization mode:
 
-- `move`：移动文件，默认值
-- `copy`：拷贝文件，保留原文件
+- `move`: move files, default
+- `copy`: copy files and keep originals
 
-示例：
+Example:
 
 ```powershell
-python main.py --src D:\InputPhotos --dst D:\SortedPhotos --mode copy
+.\venv\Scripts\python.exe .\main.py --src D:\InputPhotos --dst D:\SortedPhotos --mode copy
 ```
 
 ### `--lang`
 
-界面语言，可选：
+Interface language:
 
-- `zh`：中文
-- `en`：英文
-- `ja`：日文
+- `zh`: Chinese
+- `en`: English
+- `ja`: Japanese
 
-示例：
+Example:
 
 ```powershell
-python main.py --src D:\InputPhotos --dst D:\SortedPhotos --lang en
-python main.py --src D:\InputPhotos --dst D:\SortedPhotos --lang ja
+.\venv\Scripts\python.exe .\main.py --src D:\InputPhotos --dst D:\SortedPhotos --lang en
+.\venv\Scripts\python.exe .\main.py --src D:\InputPhotos --dst D:\SortedPhotos --lang ja
+```
+
+### `--duplicate-detection`
+
+Duplicate detection mode:
+
+- `off`: disable duplicate detection
+- `phash`: detect visually similar images with perceptual hash
+- `strict`: detect exact file matches with SHA-256
+
+Notes:
+
+- `phash` is suitable for visually similar images
+- `strict` is for exact-match users who only want byte-identical files treated as duplicates
+- `hash_db` is only used as a hint inside the current destination root and will not redirect files into old destination folders
+
+Example:
+
+```powershell
+.\venv\Scripts\python.exe .\main.py --src D:\InputPhotos --dst D:\SortedPhotos --duplicate-detection off
+.\venv\Scripts\python.exe .\main.py --src D:\InputPhotos --dst D:\SortedPhotos --duplicate-detection strict
+```
+
+### `--phash-threshold`
+
+Sets the maximum Hamming distance for perceptual hash matching. The default is `4`.
+
+Notes:
+
+- Lower values are stricter
+- Higher values make similar images more likely to be treated as duplicates
+- This option only applies when `--duplicate-detection phash` is used
+
+Example:
+
+```powershell
+.\venv\Scripts\python.exe .\main.py --src D:\InputPhotos --dst D:\SortedPhotos --duplicate-detection phash --phash-threshold 4
 ```
 
 
-## 常用示例
+## Common Examples
 
-### 默认移动文件
-
-```powershell
-python main.py --src D:\InputPhotos --dst D:\SortedPhotos
-```
-
-### 拷贝文件，不删除源文件
+### Move files by default
 
 ```powershell
-python main.py --src D:\InputPhotos --dst D:\SortedPhotos --mode copy
+.\venv\Scripts\python.exe .\main.py --src D:\InputPhotos --dst D:\SortedPhotos
 ```
 
-### 使用英文界面
+### Copy files and keep originals
 
 ```powershell
-python main.py --src D:\InputPhotos --dst D:\SortedPhotos --lang en
+.\venv\Scripts\python.exe .\main.py --src D:\InputPhotos --dst D:\SortedPhotos --mode copy
 ```
 
-### 使用日文界面
+### Use English UI
 
 ```powershell
-python main.py --src D:\InputPhotos --dst D:\SortedPhotos --lang ja
+.\venv\Scripts\python.exe .\main.py --src D:\InputPhotos --dst D:\SortedPhotos --lang en
+```
+
+### Use Japanese UI
+
+```powershell
+.\venv\Scripts\python.exe .\main.py --src D:\InputPhotos --dst D:\SortedPhotos --lang ja
+```
+
+### Use strict duplicate detection
+
+```powershell
+.\venv\Scripts\python.exe .\main.py --src D:\InputPhotos --dst D:\SortedPhotos --duplicate-detection strict
+```
+
+### Use perceptual duplicate detection
+
+```powershell
+.\venv\Scripts\python.exe .\main.py --src D:\InputPhotos --dst D:\SortedPhotos --duplicate-detection phash --phash-threshold 4
 ```
 
 
-## 日志说明
+## Logs
 
-程序每次运行都会自动在脚本所在目录下创建或使用 `log` 文件夹。
+The program automatically creates or reuses the `log` folder under the script directory.
 
-日志文件名格式如下：
+Log file names use this format:
 
 ```text
 organize_log_YYYYMMDD_HHMMSS.txt
 ```
 
-例如：
+Example:
 
 ```text
 organize_log_20260413_135222.txt
 ```
 
-程序执行完成后，终端会显示本次日志文件的完整路径。
+After execution, the program prints the full path of the generated log file.
 
 
-## 整理规则
+## Organization Rules
 
-- 程序会递归扫描源目录中的所有子目录
-- 优先读取图片 EXIF 时间
-- 若无 EXIF 时间，则使用文件修改时间
-- 按 `目标目录\年\月\日\` 的形式输出
-- 若目标目录存在同名文件，会自动追加序号
+- Recursively scans all subfolders in the source directory
+- Uses image EXIF time first
+- Falls back to file modified time when EXIF is unavailable
+- Outputs files to `target\year\month\day\`
+- When duplicate detection is enabled, only records inside the current destination root are used as matches
+- Adds a numeric suffix if a file with the same name already exists
 
-同名文件示例：
+Duplicate name example:
 
 ```text
 photo.jpg
@@ -162,56 +257,56 @@ photo_2.jpg
 ```
 
 
-## 文件结构说明
+## Project Structure
 
 - `main.py`
-  程序入口
+  Program entry point
 - `core/`
-  日期识别和 EXIF 读取逻辑
+  Date detection and EXIF reading logic
 - `services/`
-  文件整理逻辑
+  File organization logic
 - `locales/`
-  中英日提示文本
+  Chinese, English, and Japanese UI texts
 - `log/`
-  每次运行生成的日志目录
+  Log output folder for each run
 
 
-## 注意事项
+## Notes
 
-- 请确保源目录和目标目录填写正确
-- 默认 `move` 模式会将文件从源目录移走
-- 如果需要保留原文件，请使用 `--mode copy`
-- 建议首次先使用少量文件测试
-- 建议重要资料先备份再处理
-
-
-## 常见失败原因
-
-- 文件被占用，无法移动或拷贝
-- 文件没有读取权限
-- 图片 EXIF 信息异常
-- 目标目录没有写入权限
+- Make sure the source and destination paths are correct
+- Default `move` mode removes files from the source directory
+- Use `--mode copy` if you need to keep original files
+- It is recommended to test with a small number of files first
+- Back up important files before large batch processing
 
 
-## 免责声明
+## Common Failure Causes
 
-本工具用于对图片和视频文件进行自动整理。
-在实际使用中，仍可能因路径错误、权限问题、文件占用、磁盘异常、时间信息错误、程序中断或其他不可预见因素导致整理结果不符合预期。
+- File is in use and cannot be moved or copied
+- File permission is insufficient
+- Image EXIF data is invalid
+- Destination directory is not writable
 
-请特别注意以下事项：
 
-- 默认 `move` 模式会移动原文件
-- 同名文件会自动重命名
-- EXIF 或文件时间不准确时，目标日期目录可能不符合真实拍摄日期
-- 日志仅用于辅助排查，不构成结果完整性保证
+## Disclaimer
 
-为降低风险，建议：
+This tool is intended to automatically organize image and video files.
+In actual use, the result may still differ from expectations due to incorrect paths, permission problems, file locks, disk issues, invalid time metadata, interrupted execution, or other unforeseen factors.
 
-1. 首次使用时先处理少量测试文件
-2. 优先使用 `--mode copy` 验证效果
-3. 正式处理前备份重要数据
-4. 处理完成后检查日志与目标目录
+Please note:
 
-更完整的免责说明请参考：
+- Default `move` mode moves original files
+- Duplicate file names are automatically renamed
+- If EXIF time or file time is inaccurate, the destination date folder may not match the real capture date
+- Logs are only for assistance and do not guarantee completeness of results
 
-- [免责声明.md](./免责声明.md)
+To reduce risk:
+
+1. Test with a small set of files first
+2. Prefer `--mode copy` for verification
+3. Back up important data before full processing
+4. Check both the log and destination folders after execution
+
+For the full disclaimer, see:
+
+- [DISCLAIMER_en.md](./DISCLAIMER_en.md)
