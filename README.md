@@ -47,6 +47,8 @@ If you only need simple date-based sorting with minimal complexity, a basic orga
 - Supports Chinese, English, and Japanese UI
 - Generates a separate log file for each run
 - Automatically appends a numeric suffix for duplicate file names
+- Renames detected duplicates as `kept_name_dupN.ext` so they stay grouped in the archive
+- Generates `duplicate_report.csv` for duplicate traceability
 
 
 ## Supported File Types
@@ -156,6 +158,9 @@ Notes:
 - `phash` is suitable for visually similar images
 - `strict` is for exact-match users who only want byte-identical files treated as duplicates
 - `hash_db` is only used as a hint inside the current destination root and will not redirect files into old destination folders
+- Detected duplicates are still copied or moved into the normal dated archive folder
+- Duplicate files are renamed based on the first retained file name, such as `photo_dup1.jpg` and `photo_dup2.jpg`
+- Each run appends duplicate reference rows to `duplicate_report.csv` in the same folder as the run log
 
 Example:
 
@@ -238,6 +243,21 @@ organize_log_20260413_135222.txt
 
 After execution, the program prints the full path of the generated log file.
 
+When duplicates are detected, the program also appends records to:
+
+```text
+duplicate_report.csv
+```
+
+The report is created in the same folder as the run log and currently includes:
+
+- `original_name`
+- `original_path`
+- `kept_path`
+- `duplicate_method`
+- `hash`
+- `duplicate_path`
+
 
 ## Organization Rules
 
@@ -247,6 +267,8 @@ After execution, the program prints the full path of the generated log file.
 - Outputs files to `target\year\month\day\`
 - When duplicate detection is enabled, only records inside the current destination root are used as matches
 - Adds a numeric suffix if a file with the same name already exists
+- Duplicate files are still placed into the normal dated archive folder
+- Duplicate files are renamed from the retained file name using `_dupN`
 
 Duplicate name example:
 
@@ -254,6 +276,14 @@ Duplicate name example:
 photo.jpg
 photo_1.jpg
 photo_2.jpg
+```
+
+Duplicate detection naming example:
+
+```text
+photo.jpg
+photo_dup1.jpg
+photo_dup2.jpg
 ```
 
 

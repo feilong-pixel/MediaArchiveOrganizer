@@ -1,4 +1,4 @@
-# ImageOrganizer Disclaimer
+# Media Archive Organizer Disclaimer
 
 ## 1. Risk Notice
 
@@ -62,7 +62,16 @@ After important processing, users should manually verify:
 - Whether the destination folder structure is correct
 
 
-## 6. Limitation of Liability
+## 6. Note on Duplicate Detection
+
+Duplicate detection results are provided only as operational reference.
+
+- `strict` mode only treats byte-identical files as duplicates
+- `phash` mode is based on visual similarity and does not guarantee that two files are the same in business, legal, or archival meaning
+- Even when the program marks files as duplicates, users should still review important results manually
+
+
+## 7. Limitation of Liability
 
 This tool is provided "as is" without any express or implied warranty.
 
@@ -74,7 +83,15 @@ The developer or provider is not liable for:
 - Losses caused by users not backing up important data
 
 
-## 7. Recommended Safe Usage
+## 8. No Professional or Compliance Advice
+
+This tool is only a local file processing utility.
+It does not constitute legal advice, compliance advice, records management advice, or professional archival guidance.
+
+If your files are related to legal retention, regulated records, evidentiary materials, or business compliance requirements, you should evaluate and verify the workflow separately before use.
+
+
+## 9. Recommended Safe Usage
 
 To reduce risk, it is recommended to use this tool as follows:
 
@@ -85,6 +102,6 @@ To reduce risk, it is recommended to use this tool as follows:
 5. Proceed with large-scale organization only after confirming the result is correct
 
 
-## 8. Final Statement
+## 10. Final Statement
 
 By running this tool, you acknowledge and accept the risks and limitations described above.

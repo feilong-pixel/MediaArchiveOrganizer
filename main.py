@@ -59,6 +59,18 @@ def main():
     parser.add_argument("--src", required=True, help=texts["src_help"])
     parser.add_argument("--dst", required=True, help=texts["dst_help"])
     parser.add_argument("--mode", choices=("move", "copy"), default="move", help=texts["mode_help"])
+    parser.add_argument(
+        "--duplicate-detection",
+        choices=("off", "phash", "strict"),
+        default="phash",
+        help=texts["duplicate_detection_help"],
+    )
+    parser.add_argument(
+        "--phash-threshold",
+        type=int,
+        default=4,
+        help=texts["phash_threshold_help"],
+    )
     parser.add_argument("--lang", choices=("zh", "en", "ja"), default="en", help=texts["lang_help"])
 
     args = parser.parse_args()
@@ -69,8 +81,17 @@ def main():
 
     print(texts["start_message"])
     print(texts["mode_selected"].format(mode=args.mode))
+    print(texts["duplicate_detection_selected"].format(mode=args.duplicate_detection, threshold=args.phash_threshold))
 
-    organize_images(src_dir, dst_dir, log_path, args.mode, texts)
+    organize_images(
+        src_dir,
+        dst_dir,
+        log_path,
+        args.mode,
+        texts,
+        args.duplicate_detection,
+        args.phash_threshold,
+    )
 
     print(texts["done_message"].format(log_path=log_path))
 

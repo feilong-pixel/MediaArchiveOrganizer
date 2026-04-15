@@ -1,9 +1,11 @@
-# ImageOrganizer Environment Setup
+# Media Archive Organizer Environment Setup
 
 ## 1. Overview
 
 This project is a Python-based image and video organizer.
 It scans a source folder, determines the file date from EXIF metadata or file modified time, and then moves or copies files into a date-based directory structure.
+When duplicate detection is enabled, duplicate files are still placed into the normal dated archive folder and renamed as `kept_name_dupN.ext`.
+The script also appends duplicate reference data to `duplicate_report.csv`.
 
 
 ## 2. Recommended Environment
@@ -21,8 +23,10 @@ It does not require a database, web server, or external service.
 The project requires the following third-party package:
 
 - `Pillow`
+- `pytest` (optional, only needed when running tests)
 
 `Pillow` is used to read EXIF metadata from image files.
+`pytest` is used to run the automated test suite.
 
 
 ## 4. Create a Virtual Environment
@@ -106,6 +110,12 @@ If you want to avoid installing into the wrong Python environment, use the more 
 .\venv\Scripts\python.exe -m pip install Pillow
 ```
 
+If you also want to run tests, use:
+
+```powershell
+.\venv\Scripts\python.exe -m pip install Pillow pytest
+```
+
 This guarantees that the package is installed into this project's `venv`, not into the global Python installation or some other virtual environment.
 
 Optional check:
@@ -157,6 +167,8 @@ Main folders and files:
   Language resource files for `zh`, `en`, and `ja`.
 - `log/`
   Generated log files after each run.
+- `tests/`
+  Automated tests for organization and duplicate handling behavior.
 
 
 ## 8. Run the Script
@@ -224,8 +236,12 @@ This makes dependency and path issues much easier to diagnose.
   Destination directory. Required.
 - `--mode`
   `move` or `copy`. Default is `move`.
+- `--duplicate-detection`
+  `off`, `phash`, or `strict`. Default is `phash`.
+- `--phash-threshold`
+  Integer threshold used only with `phash`. Default is `4`.
 - `--lang`
-  `zh`, `en`, or `ja`. Default is `zh`.
+  `zh`, `en`, or `ja`. Default is `en`.
 
 
 ## 10. Output and Logs
@@ -239,6 +255,21 @@ organize_log_YYYYMMDD_HHMMSS.txt
 ```
 
 The script prints the final log path after execution.
+
+If duplicates are detected, the script also appends rows to:
+
+```text
+duplicate_report.csv
+```
+
+This CSV is written to the same folder as the run log and currently includes:
+
+- `original_name`
+- `original_path`
+- `kept_path`
+- `duplicate_method`
+- `hash`
+- `duplicate_path`
 
 
 ## 11. Common Setup Problems
@@ -280,3 +311,9 @@ python -c "import sys; print(sys.executable)"
 3. Prefer `.\venv\Scripts\python.exe -m pip install Pillow` to install dependencies
 4. Run the script with `.\venv\Scripts\python.exe .\main.py --src ... --dst ...`
 5. Check the generated `log` file after execution
+
+Optional test command:
+
+```powershell
+.\venv\Scripts\python.exe -m pytest -q
+```

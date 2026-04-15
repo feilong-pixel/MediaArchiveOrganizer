@@ -1,0 +1,41 @@
+# Python virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.tox/
+.nox/
+
+# Test and coverage artifacts
+.pytest_tmp/
+.test_runs/
+test_runs/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# Runtime logs and local state
+log/
+*.log
+data/hash_db.json
+
+# Local scratch/sample folders
+review*_src/
+review*_dst/
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
