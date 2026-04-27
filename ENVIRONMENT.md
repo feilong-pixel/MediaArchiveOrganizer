@@ -23,9 +23,14 @@ It does not require a database, web server, or external service.
 The project requires the following third-party package:
 
 - `Pillow`
+- `exifread`
+- `pywin32` (Windows only)
 - `pytest` (optional, only needed when running tests)
 
+
 `Pillow` is used to read EXIF metadata from image files.
+`exifread` is used to extract additional EXIF fields and vendor-specific metadata that Pillow cannot read, including MakerNote and extended timestamp fields.
+`pywin32` is required on Windows to access and preserve file timestamps (CreationTime, AccessTime, ModifyTime) when moving or copying files.
 `pytest` is used to run the automated test suite.
 
 
@@ -107,13 +112,13 @@ This installs `Pillow` into the currently active virtual environment.
 If you want to avoid installing into the wrong Python environment, use the more explicit command:
 
 ```powershell
-.\venv\Scripts\python.exe -m pip install Pillow
+.\venv\Scripts\python.exe -m pip install Pillow exifread pywin32
 ```
 
 If you also want to run tests, use:
 
 ```powershell
-.\venv\Scripts\python.exe -m pip install Pillow pytest
+.\venv\Scripts\python.exe -m pip install Pillow pytest exifread pywin32
 ```
 
 This guarantees that the package is installed into this project's `venv`, not into the global Python installation or some other virtual environment.
@@ -127,7 +132,7 @@ pip show Pillow
 More explicit check:
 
 ```powershell
-.\venv\Scripts\python.exe -m pip show Pillow
+.\venv\Scripts\python.exe -m pip show Pillow exifread pywin32
 ```
 
 

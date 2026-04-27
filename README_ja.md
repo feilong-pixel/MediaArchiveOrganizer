@@ -65,12 +65,12 @@ EXIF 時刻が取得できない場合は、ファイルの更新日時を使用
 
 - Windows 10 または Windows 11
 - Python 3.10 以上
-- 依存ライブラリ: `Pillow`
+- 依存ライブラリ: `Pillow`, `exifread`, `pywin32`（Windows のみ）
 
 依存関係のインストール:
 
 ```powershell
-.\venv\Scripts\python.exe -m pip install Pillow
+.\venv\Scripts\python.exe -m pip install Pillow exifread pywin32
 ```
 
 補足:

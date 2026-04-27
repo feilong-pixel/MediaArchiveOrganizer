@@ -64,12 +64,12 @@
 
 - Windows 10 或 Windows 11
 - Python 3.10 或更高版本
-- 依赖库：`Pillow`
+- 依赖库：`Pillow`, `exifread`, `pywin32`（仅限 Windows）
 
 安装依赖：
 
 ```powershell
-.\venv\Scripts\python.exe -m pip install Pillow
+.\venv\Scripts\python.exe -m pip install Pillow exifread pywin32
 ```
 
 说明：

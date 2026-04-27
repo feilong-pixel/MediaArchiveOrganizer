@@ -64,12 +64,12 @@ If you only need simple date-based sorting with minimal complexity, a basic orga
 
 - Windows 10 or Windows 11
 - Python 3.10 or later
-- Dependency: `Pillow`
+- Dependency: `Pillow`, `exifread`, `pywin32` (Windows only)
 
 Install dependency:
 
 ```powershell
-.\venv\Scripts\python.exe -m pip install Pillow
+.\venv\Scripts\python.exe -m pip install Pillow exifread pywin32
 ```
 
 Notes:

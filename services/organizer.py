@@ -5,21 +5,56 @@ from datetime import datetime
 from core.date_classifier import get_target_date, build_date_path
 from core.duplicate_detector import compute_file_hash, compute_phash
 from core.hash_db import load_hash_db, save_hash_db, add_hash_record, get_valid_original_paths
+import platform
 
 SUPPORTED_EXT = (".jpg", ".jpeg", ".png", ".mp4", ".mov")
 
+def is_windows():
+    return platform.system() == "Windows"
 
 def timestamp():
     # Keep log timestamps human-readable for quick troubleshooting.
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-
+# Transfer the file while preserving timestamps. Windows doesn't preserve 
+# creation time by default, so we need to set it explicitly.
 def transfer_file(src, dst, mode):
-    # Dispatch to copy or move based on the selected organization mode.
+    st = os.stat(src)
+    atime, mtime, ctime = st.st_atime, st.st_mtime, st.st_ctime
+
     if mode == "copy":
         shutil.copy2(src, dst)
     else:
         shutil.move(src, dst)
+
+    if not is_windows():
+        return
+
+    try:
+        import pywintypes
+        import win32file
+        import win32con
+    except ImportError:
+        return
+
+    handle = win32file.CreateFile(
+        dst,
+        win32con.GENERIC_WRITE,
+        win32con.FILE_SHARE_READ | win32con.FILE_SHARE_WRITE | win32con.FILE_SHARE_DELETE,
+        None,
+        win32con.OPEN_EXISTING,
+        win32con.FILE_ATTRIBUTE_NORMAL,
+        None
+    )
+
+    win32file.SetFileTime(
+        handle,
+        pywintypes.Time(ctime),  # CreationTime
+        pywintypes.Time(atime),  # AccessTime
+        pywintypes.Time(mtime)   # ModifyTime
+    )
+
+    handle.close()
 
 
 def get_unique_path(directory: str, filename: str) -> str:

@@ -1,26 +1,49 @@
-from PIL import Image
-from PIL.ExifTags import TAGS
-import os
+	import os
 from datetime import datetime
+import exifread
+
+EXIF_TIME_CANDIDATES = [
+    "DateTimeOriginal",
+    "CreateDate",
+    "DateTimeDigitized",
+    "ModifyDate",
+    "DateTime",
+]
 
 # Read the capture time from the image EXIF metadata.
 def get_exif_datetime(path: str) -> datetime | None:
     try:
-        img = Image.open(path)
-        exif = img._getexif()
-        if not exif:
-            return None
+        with open(path, "rb") as f:
+            tags = exifread.process_file(f, details=True, strict=False)
 
-        for tag, value in exif.items():
-            tag_name = TAGS.get(tag, tag)
-            if tag_name == "DateTimeOriginal":
-                return datetime.strptime(value, "%Y:%m:%d %H:%M:%S")
-
-        return None
+        for key, value in tags.items():
+            for candidate in EXIF_TIME_CANDIDATES:
+                if candidate.lower() in key.lower():
+                    dt = _parse_exif_datetime(str(value))
+                    if dt:
+                        return dt
     except Exception:
-        return None
+        pass
+
+    return None
 
 # Use the file modification time when EXIF data is unavailable.
 def get_file_datetime(path: str) -> datetime:
     stat = os.stat(path)
     return datetime.fromtimestamp(stat.st_mtime)
+
+# Parse EXIF date/time string into a datetime object.
+def _parse_exif_datetime(value):
+    if not value:
+        return None
+
+    if isinstance(value, bytes):
+        value = value.decode(errors="ignore")
+
+    value = value.strip()
+
+    try:
+        return datetime.strptime(value, "%Y:%m:%d %H:%M:%S")
+    except Exception:
+        return None
+        
